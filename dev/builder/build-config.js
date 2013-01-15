@@ -8,6 +8,8 @@ var CKBUILDER_CONFIG = {
 	ignore: [
 		'dev',
 		'README.md',
+		'ckpackager.jar',
+		'ckbuilder.jar',
 		'.gitignore',
 		'.gitattributes',
 		'.idea',
@@ -16,6 +18,7 @@ var CKBUILDER_CONFIG = {
 	],
 	plugins: {
 		a11yhelp: 1,
+		aide:1,
 		about: 1,
 		basicstyles: 1,
 		bidi: 1,
@@ -48,6 +51,7 @@ var CKBUILDER_CONFIG = {
 		magicline: 1,
 		maximize: 1,
 		newpage: 1,
+		onchange:1,
 		pagebreak: 1,
 		pastefromword: 1,
 		pastetext: 1,
@@ -56,6 +60,7 @@ var CKBUILDER_CONFIG = {
 		removeformat: 1,
 		resize: 1,
 		save: 1,
+		savemessage:1,
 		selectall: 1,
 		showblocks: 1,
 		showborders: 1,
