@@ -4,19 +4,19 @@
  */
 (function()
 {
-   var saveMessage =
+   var savemessage =
    {
       exec : function( editor )
       {
          composer('draft'); // sauvegarde le message en instance de redaction dans la partie Brouillon
       }
    };
-   var pluginName = 'saveMessage';
+   var pluginName = 'savemessage';
    CKEDITOR.plugins.add( pluginName,
    {
       init : function( editor )
       {
-         editor.addCommand( pluginName, saveMessage );
+         editor.addCommand( pluginName, savemessage );
       }
    });
 })();

@@ -1,4 +1,4 @@
-CKEditor 4 - The best browser-based WYSIWYG editor
+CKEditor 4 - Ma version debugge
 ==================================================
 
 ## Development Code
@@ -26,7 +26,7 @@ This repository contains the following branches:
   -	**latest**: latest release tag point (including betas).
   - **release/A.B.x** (e.g. 4.0.x, 4.1.x): release freeze, tests and tagging.
     Hotfixing.
- 
+
 (*) Note that both **master** and **major** are under heavy development. Their
 code didn't pass the release testing phase so it may be unstable.
 
