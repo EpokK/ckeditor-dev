@@ -274,6 +274,46 @@
 				range.deleteContents();
 				range.insertNode( lineBreak );
 
+				// Patch Richard blockquote
+				var startBlockParent = startBlock && startBlock.getParent(); 
+                if ( startBlockParent && startBlockParent.is( 'blockquote' ) ) 
+                { 
+                    var previous = lineBreak.getPrevious( CKEDITOR.dom.walker.whitespaces(1) ), 
+                        next = lineBreak.getNext( CKEDITOR.dom.walker.whitespaces(1) ); 
+
+                    var isStartOfParent = range.checkBoundaryOfElement( startBlockParent, CKEDITOR.START ), 
+                        isEndOfParent = range.checkBoundaryOfElement( startBlockParent, CKEDITOR.END ), 
+                        isStartOfLine = isStartOfParent || ( previous && previous.is && previous.is( 'br' ) ), 
+                        isEndOfLine = isEndOfParent || ( next && next.is && next.is( 'br' ) ); 
+
+                    if ( isStartOfLine && isEndOfLine ) 
+                    { 
+                        if ( isStartOfParent ) 
+                            lineBreak.remove().insertBefore( startBlockParent ); 
+                        else if ( isEndOfParent ) 
+                            lineBreak.remove().insertAfter( startBlockParent ); 
+                        else 
+                            lineBreak.breakParent( startBlockParent ); 
+
+                        isStartOfParent && isEndOfParent && startBlockParent.remove(); 
+
+                        // The "next" <br> is not needed any more at this point. 
+                        next && next.remove(); 
+
+                        // Except on IE, the previous and the new <br> will remain as bogus <br>s. 
+                        if ( CKEDITOR.env.ie && previous ) 
+                            previous.remove(); 
+
+                        range.moveToPosition( lineBreak, CKEDITOR.POSITION_BEFORE_START ); 
+
+                        if ( CKEDITOR.env.ie ) 
+                            lineBreak.remove(); 
+
+                        range.select(); 
+                        return; 
+                    } 
+                } 
+
 				// IE has different behavior regarding position.
 				if ( CKEDITOR.env.ie )
 					range.setStartAt( lineBreak, CKEDITOR.POSITION_AFTER_END );
