@@ -477,7 +477,10 @@
 				!preventBeforePasteEvent && fixCut( editor );
 			});
 
-			editable.on( 'mouseup', function() {
+			// Use editor.document instead of editable in non-IEs for observing mouseup
+			// since editable won't fire the event if selection process started within
+			// iframe and ended out of the editor (#9851).
+			( CKEDITOR.env.ie ? editable : editor.document.getDocumentElement() ).on( 'mouseup', function() {
 				setTimeout( function() {
 					setToolbarStates();
 				}, 0 );
@@ -901,7 +904,7 @@
 			else {
 				var sel = editor.getSelection(),
 					ranges = sel.getRanges();
-				retval = sel.type != CKEDITOR.SELECTION_NONE && !( ranges.length == 1 && ranges[ 0 ].collapsed );
+				retval = sel.getType() != CKEDITOR.SELECTION_NONE && !( ranges.length == 1 && ranges[ 0 ].collapsed );
 			}
 
 			return retval ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED;

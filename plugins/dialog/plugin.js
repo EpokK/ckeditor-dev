@@ -2426,6 +2426,11 @@ CKEDITOR.DIALOG_RESIZE_BOTH = 3;
 						if ( elementDefinition && elementDefinition.expand )
 							html.push( 'height:100%;' );
 						html.push( 'width:' + cssLength( width || '100%' ), ';' );
+
+						// (#10123) Temp fix for dialog broken layout in latest webkit.
+						if ( CKEDITOR.env.webkit )
+							html.push( 'float:none;' );
+
 						html.push( '"' );
 						html.push( 'align="', CKEDITOR.tools.htmlEncode(
 						( elementDefinition && elementDefinition.align ) || ( dialog.getParentEditor().lang.dir == 'ltr' ? 'left' : 'right' ) ), '" ' );
@@ -2813,7 +2818,7 @@ CKEDITOR.DIALOG_RESIZE_BOTH = 3;
 		// undo support should dedicate to specific dialog implementation.
 		canUndo: false,
 
-		editorFocus: CKEDITOR.env.ie || CKEDITOR.env.webkit
+		editorFocus: 1
 	};
 
 	(function() {

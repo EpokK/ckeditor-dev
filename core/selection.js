@@ -196,18 +196,43 @@
 
 			var isInline = editable.isInline();
 
+			var restoreSel;
+
+			// Give the editable an initial selection on first focus,
+			// put selection at a consistent position at the start
+			// of the contents. (#9507)
+			if ( CKEDITOR.env.gecko ) {
+				editable.attachListener( editable, 'focus', function( evt ) {
+					evt.removeListener();
+
+					if ( restoreSel !== 0 ) {
+						var nativ = editor.getSelection().getNative();
+						// Do it only if the native selection is at an unwanted
+						// place (at the very start of the editable). #10119
+						if ( nativ.isCollapsed && nativ.anchorNode == editable.$ ) {
+							var rng = editor.createRange();
+							rng.moveToElementEditStart( editable );
+							rng.select();
+						}
+					}
+				}, null, null, -2 );
+			}
+
+			// Plays the magic here to restore/save dom selection on editable focus/blur.
+			editable.attachListener( editable, 'focus', function() {
+				editor.unlockSelection( restoreSel );
+				restoreSel = 0;
+			}, null, null, -1 );
+
+			// Disable selection restoring when clicking in.
+			editable.attachListener( editable, 'mousedown', function() {
+				restoreSel = 0;
+			});
+
 			// Browsers could loose the selection once the editable lost focus,
 			// in such case we need to reproduce it by saving a locked selection
 			// and restoring it upon focus gain.
 			if ( CKEDITOR.env.ie || CKEDITOR.env.opera || isInline ) {
-				var restoreSel;
-
-				// Plays the magic here to restore/save dom selection on editable focus/blur.
-				editable.attachListener( editable, 'focus', function() {
-					editor.unlockSelection( restoreSel );
-					restoreSel = 0;
-				}, null, null, -1 );
-
 				var lastSel;
 				// Save a fresh copy of the selection.
 				function saveSel() {
@@ -226,11 +251,6 @@
 					editor.lockSelection( lastSel );
 					restoreSel = 1;
 				}, null, null, -1 );
-
-				// Disable selection restoring when clicking in.
-				editable.attachListener( editable, 'mousedown', function() {
-					restoreSel = 0;
-				});
 			}
 
 			// The following selection related fixes applies to only framed editable.
@@ -369,7 +389,7 @@
 			// when it was changed by dragging and releasing mouse button outside editable. Dragging (mousedown)
 			// has to be initialized in editable, but for mouseup we listen on document element.
 			// On Opera, listening on document element, helps even if mouse button is released outside iframe.
-			if ( editable.isInline() ? ( CKEDITOR.env.webkit || CKEDITOR.env.gecko ) : CKEDITOR.env.opera ) {
+			if ( isInline ? ( CKEDITOR.env.webkit || CKEDITOR.env.gecko ) : CKEDITOR.env.opera ) {
 				var mouseDown;
 				editable.attachListener( editable, 'mousedown', function() {
 					mouseDown = 1;
@@ -381,8 +401,12 @@
 				});
 			}
 			// In all other cases listen on simple mouseup over editable, as we did before #9699.
+			//
+			// Use document instead of editable in non-IEs for observing mouseup
+			// since editable won't fire the event if selection process started within iframe and ended out
+			// of the editor (#9851).
 			else
-				editable.attachListener( editable, 'mouseup', checkSelectionChangeTimeout, editor );
+				editable.attachListener( CKEDITOR.env.ie ? editable : doc.getDocumentElement(), 'mouseup', checkSelectionChangeTimeout, editor );
 
 			if ( CKEDITOR.env.webkit ) {
 				// Before keystroke is handled by editor, check to remove the filling char.
@@ -680,7 +704,15 @@
 				var nativeRange = this.document.$.createRange();
 				nativeRange.setStart( range.startContainer.$, range.startOffset );
 				nativeRange.collapse( 1 );
+
+				// It may happen that setting proper selection will
+				// cause focus to be fired. Cancel it because focus
+				// shouldn't be fired when retriving selection. (#10115)
+				var listener = this.root.on( 'focus', function( evt ) {
+					evt.cancel();
+				}, null, null, -100 );
 				sel.addRange( nativeRange );
+				listener.removeListener();
 			}
 		}
 

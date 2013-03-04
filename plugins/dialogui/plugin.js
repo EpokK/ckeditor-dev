@@ -702,9 +702,9 @@ CKEDITOR.plugins.add( 'dialogui', {
 					// Look for focus function in definition.
 					var focus = elementDefinition.focus;
 					if ( focus ) {
+						var oldFocus = this.focus;
 						this.focus = function() {
-							this.selectParentTab();
-							typeof focus == 'function' && focus.call( this );
+							( typeof focus == 'function' ? focus : oldFocus ).call( this );
 							this.fire( 'focus' );
 						};
 						if ( elementDefinition.isFocusable ) {
@@ -1309,7 +1309,7 @@ CKEDITOR.plugins.add( 'dialogui', {
 			/**
 			 * Defines the onChange event for UI element definitions.
 			 *
-			 * @propert {Object}
+			 * @property {Object}
 			 */
 			eventProcessors: {
 				onChange: function( dialog, func ) {
