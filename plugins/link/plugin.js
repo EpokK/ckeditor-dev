@@ -48,9 +48,23 @@ CKEDITOR.plugins.add( 'link', {
 	},
 
 	init: function( editor ) {
+		var allowed = 'a[!href]',
+			required = 'a[href]';
+
+		if ( CKEDITOR.dialog.isTabEnabled( editor, 'link', 'advanced' ) )
+			allowed = allowed.replace( ']', ',accesskey,charset,dir,id,lang,name,rel,tabindex,title,type]{*}(*)' );
+		if ( CKEDITOR.dialog.isTabEnabled( editor, 'link', 'target' ) )
+			allowed = allowed.replace( ']', ',target,onclick]' );
+
 		// Add the link and unlink buttons.
-		editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'link' ) );
-		editor.addCommand( 'anchor', new CKEDITOR.dialogCommand( 'anchor' ) );
+		editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'link', {
+			allowedContent: allowed,
+			requiredContent: required
+		} ) );
+		editor.addCommand( 'anchor', new CKEDITOR.dialogCommand( 'anchor', {
+			allowedContent: 'a[!name,id]',
+			requiredContent: 'a[name]'
+		} ) );
 		editor.addCommand( 'unlink', new CKEDITOR.unlinkCommand() );
 		editor.addCommand( 'removeAnchor', new CKEDITOR.removeAnchorCommand() );
 
@@ -307,7 +321,8 @@ CKEDITOR.unlinkCommand.prototype = {
 	},
 
 	contextSensitive: 1,
-	startDisabled: 1
+	startDisabled: 1,
+	requiredContent: 'a[href]'
 };
 
 CKEDITOR.removeAnchorCommand = function() {};
@@ -328,7 +343,8 @@ CKEDITOR.removeAnchorCommand.prototype = {
 			}
 		}
 		sel.selectBookmarks( bms );
-	}
+	},
+	requiredContent: 'a[name]'
 };
 
 CKEDITOR.tools.extend( CKEDITOR.config, {

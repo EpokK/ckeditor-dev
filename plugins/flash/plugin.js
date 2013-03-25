@@ -34,7 +34,19 @@
 
 		},
 		init: function( editor ) {
-			editor.addCommand( 'flash', new CKEDITOR.dialogCommand( 'flash' ) );
+			var allowed = 'object[classid,codebase,height,hspace,vspace,width];' +
+				'param[name,value];' +
+				'embed[height,hspace,pluginspage,src,type,vspace,width]';
+
+			if ( CKEDITOR.dialog.isTabEnabled( editor, 'flash', 'properties' ) )
+				allowed += ';object[align]; embed[allowscriptaccess,quality,scale,wmode]';
+			if ( CKEDITOR.dialog.isTabEnabled( editor, 'flash', 'advanced' ) )
+				allowed += ';object[id]{*}; embed[bgcolor]{*}(*)';
+
+			editor.addCommand( 'flash', new CKEDITOR.dialogCommand( 'flash', {
+				allowedContent: allowed,
+				requiredContent: 'embed'
+			} ) );
 			editor.ui.addButton && editor.ui.addButton( 'Flash', {
 				label: editor.lang.common.flash,
 				command: 'flash',

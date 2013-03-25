@@ -17,9 +17,15 @@
 			if ( editor.blockless )
 				return;
 
-			var lang = editor.lang.div;
+			var lang = editor.lang.div,
+				allowed = 'div(*)';
+
+			if ( CKEDITOR.dialog.isTabEnabled( editor, 'editdiv', 'advanced' ) )
+				allowed += ';div[dir,id,lang,title]{*}';
 
 			editor.addCommand( 'creatediv', new CKEDITOR.dialogCommand( 'creatediv', {
+				allowedContent: allowed,
+				requiredContent: 'div',
 				contextSensitive: true,
 				refresh: function( editor, path ) {
 					var context = editor.config.div_wrapTable ? path.root : path.blockLimit;
@@ -27,8 +33,9 @@
 				}
 			}));
 
-			editor.addCommand( 'editdiv', new CKEDITOR.dialogCommand( 'editdiv' ) );
+			editor.addCommand( 'editdiv', new CKEDITOR.dialogCommand( 'editdiv', { requiredContent: 'div' } ) );
 			editor.addCommand( 'removediv', {
+				requiredContent: 'div',
 				exec: function( editor ) {
 					var selection = editor.getSelection(),
 						ranges = selection && selection.getRanges(),

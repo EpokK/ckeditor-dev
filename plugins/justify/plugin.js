@@ -56,7 +56,20 @@
 			}
 
 			this.cssClassRegex = new RegExp( '(?:^|\\s+)(?:' + classes.join( '|' ) + ')(?=$|\\s)' );
+			this.requiredContent = 'p(' + this.cssClassName + ')';
 		}
+		else {
+			this.requiredContent = 'p{text-align}';
+		}
+
+		this.allowedContent = {
+			'caption div h1 h2 h3 h4 h5 h6 p pre td th li': {
+				// Do not add elements, but only text-align style if element is validated by other rule.
+				propertiesOnly: true,
+				styles: this.cssClassName ? null : 'text-align',
+				classes: this.cssClassName || null
+			}
+		};
 	}
 
 	function onDirChanged( e ) {

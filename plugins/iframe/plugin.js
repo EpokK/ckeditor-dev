@@ -22,10 +22,17 @@
 		},
 		init: function( editor ) {
 			var pluginName = 'iframe',
-				lang = editor.lang.iframe;
+				lang = editor.lang.iframe,
+				allowed = 'iframe[align,longdesc,frameborder,height,name,scrolling,src,title,width]';
+
+			if ( editor.plugins.dialogadvtab )
+				allowed += ';iframe' + editor.plugins.dialogadvtab.allowedContent( { id:1,classes:1,styles:1 } );
 
 			CKEDITOR.dialog.add( pluginName, this.path + 'dialogs/iframe.js' );
-			editor.addCommand( pluginName, new CKEDITOR.dialogCommand( pluginName ) );
+			editor.addCommand( pluginName, new CKEDITOR.dialogCommand( pluginName, {
+				allowedContent: allowed,
+				requiredContent: 'iframe'
+			} ) );
 
 			editor.ui.addButton && editor.ui.addButton( 'Iframe', {
 				label: lang.toolbar,

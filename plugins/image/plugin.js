@@ -19,8 +19,21 @@
 			// Register the dialog.
 			CKEDITOR.dialog.add( pluginName, this.path + 'dialogs/image.js' );
 
+			var allowed = 'img[alt,!src]{border-style,border-width,float,height,margin,margin-bottom,margin-left,margin-right,margin-top,width}',
+				required = 'img[alt,src]';
+
+			if ( CKEDITOR.dialog.isTabEnabled( editor, pluginName, 'advanced' ) )
+				allowed = 'img[alt,dir,id,lang,longdesc,!src,title]{*}(*)';
+
 			// Register the command.
-			editor.addCommand( pluginName, new CKEDITOR.dialogCommand( pluginName ) );
+			editor.addCommand( pluginName, new CKEDITOR.dialogCommand( pluginName, {
+				allowedContent: allowed,
+				requiredContent: required,
+				contentTransformations: [
+					[ 'img{width}: sizeToStyle', 'img[width]: sizeToAttribute' ],
+					[ 'img{float}: alignmentToStyle', 'img[align]: alignmentToAttribute' ]
+				]
+			} ) );
 
 			// Register the toolbar button.
 			editor.ui.addButton && editor.ui.addButton( 'Image', {

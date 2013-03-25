@@ -14,7 +14,17 @@ CKEDITOR.plugins.add( 'table', {
 		var table = CKEDITOR.plugins.table,
 			lang = editor.lang.table;
 
-		editor.addCommand( 'table', new CKEDITOR.dialogCommand( 'table', { context: 'table' } ) );
+		editor.addCommand( 'table', new CKEDITOR.dialogCommand( 'table', {
+			context: 'table',
+			allowedContent: 'table{width,height}[align,border,cellpadding,cellspacing,summary];' +
+				'caption tbody thead tfoot;' +
+				'th td tr[scope];' +
+				( editor.plugins.dialogadvtab ? 'table' + editor.plugins.dialogadvtab.allowedContent() : '' ),
+			requiredContent: 'table',
+			contentTransformations: [
+				[ 'table{width}: sizeToStyle', 'table[width]: sizeToAttribute' ]
+			]
+		} ) );
 
 		function createDef( def ) {
 			return CKEDITOR.tools.extend( def || {}, {

@@ -14,8 +14,8 @@
 
 	function indentCommand( editor, name ) {
 		this.name = name;
-		this.useIndentClasses = editor.config.indentClasses && editor.config.indentClasses.length > 0;
-		if ( this.useIndentClasses ) {
+		var useClasses = this.useIndentClasses = editor.config.indentClasses && editor.config.indentClasses.length > 0;
+		if ( useClasses ) {
 			this.classNameRegex = new RegExp( '(?:^|\\s+)(' + editor.config.indentClasses.join( '|' ) + ')(?=$|\\s)' );
 			this.indentClassMap = {};
 			for ( var i = 0; i < editor.config.indentClasses.length; i++ )
@@ -23,6 +23,23 @@
 		}
 
 		this.startDisabled = name == 'outdent';
+
+		this.allowedContent = {
+			'div h1 h2 h3 h4 h5 h6 ol p pre ul': {
+				// Do not add elements, but only text-align style if element is validated by other rule.
+				propertiesOnly: true,
+				styles: !useClasses ? 'margin-left,margin-right' : null,
+				classes: useClasses ? editor.config.indentClasses : null
+			}
+		};
+
+		// #10192: Either blocks intendation or lists are required - acitvate
+		// indent commands in both situations. Lists are sufficient, because
+		// indent is needed for leaving list with enter key.
+		this.requiredContent = [
+			'p' + ( useClasses ? '(' + editor.config.indentClasses[ 0 ] + ')' : '{margin-left}' ),
+			'li'
+		];
 	}
 
 	// Returns the CSS property to be used for identing a given element.
@@ -37,6 +54,7 @@
 	indentCommand.prototype = {
 		// It applies to a "block-like" context.
 		context: 'p',
+
 		refresh: function( editor, path ) {
 			var list = path && path.contains( listNodeNames ),
 				firstBlock = path.block || path.blockLimit;
