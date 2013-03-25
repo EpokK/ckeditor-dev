@@ -274,8 +274,28 @@
 				range.deleteContents();
 				range.insertNode( lineBreak );
 
-				// Patch Richard blockquote
-				var startBlockParent = startBlock && startBlock.getParent(); 
+				// Patch Richard blockquote	
+				var aParents = startBlock && startBlock.getParents();
+				var startBlockParent = false;
+
+				// Je recherche le blockquote parent en partant de la racine
+				var iParent = 0;
+				var bFound = false;
+				// Tant que l'on a pas atteint le nombre total d'element parent 
+				// et que l'on a pas trouve
+				if(aParents) {
+					while(iParent < aParents.length && !bFound) {
+						var oParent = aParents[iParent];
+					
+						if(oParent && oParent.is('blockquote')) {
+							startBlockParent = oParent;
+							bFound = true;
+						}
+
+						iParent++;
+					}
+				}
+				
                 if ( startBlockParent && startBlockParent.is( 'blockquote' ) ) 
                 { 
                     var previous = lineBreak.getPrevious( CKEDITOR.dom.walker.whitespaces(1) ), 
